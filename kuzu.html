@@ -196,32 +196,32 @@
       <div class="type-row">
         <div class="type-pct" style="color:#aaa">0〜15%</div>
         <div class="type-name" style="color:#aaa">天使のふり上手</div>
-        <div class="type-catch">気づいてないだけ説、濃厚</div>
+        <div class="type-catch">クズ純度 3% ／ 気づいてないだけ説、濃厚</div>
       </div>
       <div class="type-row">
         <div class="type-pct" style="color:#fdcb6e">16〜35%</div>
         <div class="type-name" style="color:#fdcb6e">かわいいクズ</div>
-        <div class="type-catch">憎めないが、たしかにクズ</div>
+        <div class="type-catch">クズ純度 28% ／ 憎めないが、たしかにクズ</div>
       </div>
       <div class="type-row">
         <div class="type-pct" style="color:#e17055">36〜55%</div>
         <div class="type-name" style="color:#e17055">クズ標準装備</div>
-        <div class="type-catch">社会に溶け込む量産型</div>
+        <div class="type-catch">クズ純度 52% ／ 社会に溶け込む量産型</div>
       </div>
       <div class="type-row">
         <div class="type-pct" style="color:#ff6b6b">56〜75%</div>
         <div class="type-name" style="color:#ff6b6b">こじらせクズ</div>
-        <div class="type-catch">自覚があるのにやめられない</div>
+        <div class="type-catch">クズ純度 71% ／ 自覚があるのにやめられない</div>
       </div>
       <div class="type-row">
         <div class="type-pct" style="color:#ff4444">76〜90%</div>
         <div class="type-name" style="color:#ff4444">クズの申し子</div>
-        <div class="type-catch">クズへのセンスが光っている</div>
+        <div class="type-catch">クズ純度 88% ／ クズへのセンスが光っている</div>
       </div>
       <div class="type-row">
         <div class="type-pct" style="color:#d63031">91〜100%</div>
         <div class="type-name" style="color:#d63031">クズ界の重鎮</div>
-        <div class="type-catch">もはや文化。あなたを中心にクズが回っている</div>
+        <div class="type-catch">クズ純度 99% ／ もはや文化。あなたを中心にクズが回っている</div>
       </div>
     </div>
 
@@ -262,6 +262,7 @@
     <div class="result-tag">診断結果</div>
     <div class="result-emoji" id="res-emoji"></div>
     <div class="result-type" id="res-type"></div>
+    <div id="res-purity" style="text-align:center; font-size:0.8rem; color:#888; margin-bottom:4px; letter-spacing:1px;"></div>
     <div class="result-catch" id="res-catch"></div>
 
     <div class="meter-wrap">
@@ -398,7 +399,7 @@ const Q = [
 
 const TYPES = [
   {
-    range: [0, 15], emoji: "😇", name: "天使のふり上手", catch: "クズじゃないんじゃなくて、気づいてないだけ説、濃厚。",
+    range: [0, 15], emoji: "😇", name: "天使のふり上手", purity: "クズ純度 3%", catch: "クズじゃないんじゃなくて、気づいてないだけ説、濃厚。",
     verdict: "診断結果はクズ度ほぼゼロ。おめでとうございます…と言いたいところですが、本当にクズじゃない人間がこの診断を楽しめるでしょうか？あなたの「天使っぷり」が本物なのか、無自覚なのか、それが問題です。",
     evidence: "「やましいことはない」という回答が多すぎる。疑わしい。綺麗な人間というより、クズな自分を認識できていない可能性が高い。か、本当に天使。どちらにせよ、周囲への影響は少ない。",
     excuse: "いや、本当にいい人なのかもしれません。世の中にはそういう人も存在するそうです。あなたがそうなら、大切にされてください。",
@@ -406,7 +407,7 @@ const TYPES = [
     share: "私のクズ度は {score}%「天使のふり上手」でした\nクズじゃないんじゃなくて、気づいてないだけ説、濃厚。"
   },
   {
-    range: [16, 35], emoji: "😈", name: "かわいいクズ", catch: "憎めないが、たしかにクズ。",
+    range: [16, 35], emoji: "😈", name: "かわいいクズ", purity: "クズ純度 28%", catch: "憎めないが、たしかにクズ。",
     verdict: "あなたのクズさには愛嬌がある。本格的に人を傷つける悪意はないが、自分本位な行動がじわじわと周囲に小さなダメージを与えている。本人に悪気がないのが、むしろたちが悪い。",
     evidence: "ドタキャンや既読放置が「たまにある」程度で、自覚もある。でもその「たまに」が積み重なると、気づいたら「あいつちょっとな…」と思われています。",
     excuse: "でもまあ、人間こんなもんです。全員が完璧だったら世界はもっとつまらない。あなたのクズさは社会の潤滑油として機能しているとも言えます。言えません。",
@@ -414,7 +415,7 @@ const TYPES = [
     share: "私のクズ度は {score}%「かわいいクズ」でした\n憎めないが、たしかにクズ。"
   },
   {
-    range: [36, 55], emoji: "🗑️", name: "クズ標準装備", catch: "日本人の過半数がこれ。あなたも例外じゃなかった。",
+    range: [36, 55], emoji: "🗑️", name: "クズ標準装備", purity: "クズ純度 52%", catch: "日本人の過半数がこれ。あなたも例外じゃなかった。",
     verdict: "あなたは日本中にいる「普通にいるクズ」の代表格です。特別悪いわけでも特別いいわけでもない。周囲にも同じくらいのクズが散在しているため、誰も気づいていないし、あなたも気づいていない。それが怖い。",
     evidence: "言い訳する。催促されたら返す。気分でドタキャンする。全部「まあいいか」の積み重ねで生きてきた。クズという自覚があるのに、なぜか直らない。なぜかはわかっています。直す気がないからです。",
     excuse: "でも、ここまで生きてこられたということは、それなりに人間関係を維持できているということ。クズなりの処世術があるのでしょう。悪くない。",
@@ -422,7 +423,7 @@ const TYPES = [
     share: "私のクズ度は {score}%「クズ標準装備」でした\n日本人の過半数がこれ。あなたも例外じゃなかった。"
   },
   {
-    range: [56, 75], emoji: "💀", name: "こじらせクズ", catch: "自覚があるのにやめられない本物。",
+    range: [56, 75], emoji: "💀", name: "こじらせクズ", purity: "クズ純度 71%", catch: "自覚があるのにやめられない本物。",
     verdict: "あなたは自分がクズだと知っている。知っていてもやめられない。これがこじらせクズの条件です。知らずにやってる人より、知ってやってる人の方が、ある意味で誠実と言えなくもないが、言えない。",
     evidence: "催促されて返す金、LINEの選別放置、言い訳の反射、誰かのせいにする発想。全部揃っています。才能と呼んでいいレベルです。",
     excuse: "こじらせクズには人間らしさがある。完璧な人間は信用できないとも言います。あなたのクズさは、弱さの正直な表れかもしれません。",
@@ -430,7 +431,7 @@ const TYPES = [
     share: "私のクズ度は {score}%「こじらせクズ」でした\n自覚があるのにやめられない本物。"
   },
   {
-    range: [76, 90], emoji: "🔥", name: "クズの申し子", catch: "生まれながらにしてクズ。才能ではなく、宿命。",
+    range: [76, 90], emoji: "🔥", name: "クズの申し子", purity: "クズ純度 88%", catch: "生まれながらにしてクズ。才能ではなく、宿命。",
     verdict: "あなたのクズさには一貫性があり、再現性があり、そして独自のスタイルがある。これはもう個性です。社会的には問題ありますが、一つの才能として評価せざるを得ない。",
     evidence: "連絡を絶つ、記憶から消える、誰かのせいにする、秘密をネタにする。全方位にわたってクズが分散しており、特定の弱点がない。完成度が高い。",
     excuse: "でも、こんな診断を最後まで受けているということは、どこかで変わりたいと思っている証拠かもしれません。クズにも良心はある。たぶん。",
@@ -438,7 +439,7 @@ const TYPES = [
     share: "私のクズ度は {score}%「クズの申し子」でした\n生まれながらにしてクズ。才能ではなく、宿命。"
   },
   {
-    range: [91, 100], emoji: "👑", name: "クズ界の重鎮", catch: "もはや文化。あなたを中心にクズが回っている。",
+    range: [91, 100], emoji: "👑", name: "クズ界の重鎮", purity: "クズ純度 99%", catch: "もはや文化。あなたを中心にクズが回っている。",
     verdict: "おめでとうございます。あなたはクズの頂点に立ちました。ここまで来ると批判する気も起きません。一つの完成された生き方として、敬意すら感じます。間違えました。感じません。",
     evidence: "全項目において最高水準のクズポイントを記録。自然消滅、金は흐지부지、秘密はネタ、ミスは他人のせい、SNSで刺す。フルコンプリートです。",
     excuse: "あなたが今まで生きてこられたのは、それでも傍にいてくれた人がいるから。その人たちへの感謝だけは忘れないでください。本当に。",
@@ -511,6 +512,7 @@ function showResult() {
 
   document.getElementById('res-emoji').textContent = type.emoji;
   document.getElementById('res-type').textContent = type.name;
+  document.getElementById('res-purity').textContent = type.purity;
   document.getElementById('res-catch').textContent = type.catch;
   document.getElementById('res-verdict').textContent = type.verdict;
   document.getElementById('res-evidence').textContent = type.evidence;
@@ -579,9 +581,11 @@ async function loadTopRanking() {
       sorted.map(([type, count], i) => {
         const cls = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
         const pct = Math.round(count / total * 100);
+        const typeObj = TYPES.find(t => t.name === type);
+        const purityLabel = typeObj ? `<span style="color:#555;font-size:0.68rem;margin-left:4px;">${typeObj.purity}</span>` : '';
         return `<div class="rank-mini-row ${cls}">
           <div class="rank-mini-num">${medals[i] || (i+1)+'位'}</div>
-          <div class="rank-mini-type" style="flex:1">${escHtml(type)}</div>
+          <div class="rank-mini-type" style="flex:1">${escHtml(type)}${purityLabel}</div>
           <div class="rank-mini-score" style="font-size:0.85rem;color:#aaa">${count}人 <span style="color:#555;font-size:0.7rem">${pct}%</span></div>
         </div>`;
       }).join('');
