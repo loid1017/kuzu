@@ -48,11 +48,12 @@
       display: flex; align-items: center; gap: 10px;
       padding: 10px 14px; border-radius: 10px;
       background: #222; border: 1px solid #2a2a2a;
+      overflow: hidden;
     }
-    .type-pct { font-size: 0.78rem; font-weight: 700; color: #555; width: 34px; flex-shrink: 0; text-align: right; }
-    .type-info { flex: 1; min-width: 0; }
-    .type-name { font-size: 0.85rem; font-weight: 700; white-space: nowrap; display: block; }
-    .type-catch { font-size: 0.7rem; color: #888; display: block; margin-top: 1px; }
+    .type-pct { font-size: 0.75rem; font-weight: 700; color: #555; width: 32px; flex-shrink: 0; text-align: right; }
+    .type-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .type-name { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .type-catch { font-size: 0.68rem; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     /* ── プログレス ── */
     .progress-wrap { margin-bottom: 24px; }
