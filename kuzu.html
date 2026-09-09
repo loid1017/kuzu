@@ -24,7 +24,7 @@
     }
     @media (max-width: 520px) {
       body { padding: 0; align-items: flex-start; }
-      .card { border-radius: 0; box-shadow: none; border: none; padding: 32px 20px 24px; }
+      .card { border-radius: 0; box-shadow: none; border: none; padding: 28px 14px 24px; }
     }
     .screen { display: none; }
     .screen.show { display: block; animation: fadeIn 0.35s ease; }
@@ -49,15 +49,14 @@
     /* タイプ一覧 */
     .type-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
     .type-row {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 14px; border-radius: 10px;
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px; border-radius: 10px;
       background: #222; border: 1px solid #2a2a2a;
-      overflow: hidden;
     }
-    .type-pct { font-size: 0.75rem; font-weight: 700; color: #555; width: 32px; flex-shrink: 0; text-align: right; }
-    .type-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-    .type-name { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .type-catch { font-size: 0.68rem; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .type-pct { font-size: 0.72rem; font-weight: 700; color: #555; width: 30px; flex-shrink: 0; text-align: right; }
+    .type-info { flex: 1; min-width: 0; }
+    .type-name { font-size: 0.78rem; font-weight: 700; display: block; }
+    .type-catch { font-size: 0.65rem; color: #888; display: block; margin-top: 2px; }
 
     /* ── プログレス ── */
     .progress-wrap { margin-bottom: 24px; }
@@ -201,27 +200,45 @@
     <div class="type-list">
       <div class="type-row">
         <div class="type-pct" style="color:#aaa">3%</div>
-        <div class="type-info"><span class="type-name" style="color:#aaa">天使のふり上手</span><span class="type-catch">気づいてないだけ説、濃厚</span></div>
+        <div class="type-info">
+          <span class="type-name" style="color:#aaa">天使のふり上手</span>
+          <span class="type-catch">気づいてないだけ説、濃厚</span>
+        </div>
       </div>
       <div class="type-row">
         <div class="type-pct" style="color:#fdcb6e">28%</div>
-        <div class="type-info"><span class="type-name" style="color:#fdcb6e">かわいいクズ</span><span class="type-catch">憎めないが、たしかにクズ</span></div>
+        <div class="type-info">
+          <span class="type-name" style="color:#fdcb6e">かわいいクズ</span>
+          <span class="type-catch">憎めないが、たしかにクズ</span>
+        </div>
       </div>
       <div class="type-row">
         <div class="type-pct" style="color:#e17055">52%</div>
-        <div class="type-info"><span class="type-name" style="color:#e17055">クズ標準装備</span><span class="type-catch">社会に溶け込む量産型</span></div>
+        <div class="type-info">
+          <span class="type-name" style="color:#e17055">クズ標準装備</span>
+          <span class="type-catch">社会に溶け込む量産型</span>
+        </div>
       </div>
       <div class="type-row">
         <div class="type-pct" style="color:#ff6b6b">71%</div>
-        <div class="type-info"><span class="type-name" style="color:#ff6b6b">こじらせクズ</span><span class="type-catch">自覚があるのにやめられない</span></div>
+        <div class="type-info">
+          <span class="type-name" style="color:#ff6b6b">こじらせクズ</span>
+          <span class="type-catch">自覚があるのにやめられない</span>
+        </div>
       </div>
       <div class="type-row">
         <div class="type-pct" style="color:#ff4444">88%</div>
-        <div class="type-info"><span class="type-name" style="color:#ff4444">クズの申し子</span><span class="type-catch">クズへのセンスが光っている</span></div>
+        <div class="type-info">
+          <span class="type-name" style="color:#ff4444">クズの申し子</span>
+          <span class="type-catch">クズへのセンスが光っている</span>
+        </div>
       </div>
       <div class="type-row">
         <div class="type-pct" style="color:#d63031">99%</div>
-        <div class="type-info"><span class="type-name" style="color:#d63031">クズ界の重鎮</span><span class="type-catch">もはや文化。あなたを中心にクズが回っている</span></div>
+        <div class="type-info">
+          <span class="type-name" style="color:#d63031">クズ界の重鎮</span>
+          <span class="type-catch">もはや文化。あなたを中心にクズが回っている</span>
+        </div>
       </div>
     </div>
 
