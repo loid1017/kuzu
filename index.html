@@ -590,22 +590,31 @@ async function autoSaveScore() {
 async function loadTopRanking() {
   const list = document.getElementById('top-rank-list');
   try {
-    const q = query(collection(db, 'scores'), orderBy('score', 'desc'), limit(5));
-    const snap = await getDocs(q);
+    const snap = await getDocs(collection(db, 'scores'));
     if (snap.empty) {
       list.innerHTML = '<div class="rank-mini-loading">まだ記録がありません。最初のクズになろう。</div>';
       return;
     }
-    const medals = ['🥇', '🥈', '🥉', '4', '5'];
-    list.innerHTML = snap.docs.map((doc, i) => {
-      const d = doc.data();
-      const cls = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
-      return `<div class="rank-mini-row ${cls}">
-        <div class="rank-mini-num">${medals[i]}</div>
-        <div class="rank-mini-type" style="flex:1">${escHtml(d.type)}</div>
-        <div class="rank-mini-score">${d.score}%</div>
-      </div>`;
-    }).join('');
+    // タイプ別に人数カウント
+    const counts = {};
+    snap.docs.forEach(doc => {
+      const t = doc.data().type;
+      counts[t] = (counts[t] || 0) + 1;
+    });
+    const total = snap.size;
+    // 多い順にソート
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    const medals = ['🥇', '🥈', '🥉', '4位', '5位', '6位'];
+    list.innerHTML = `<div style="font-size:0.72rem;color:#555;margin-bottom:8px;">診断総数 ${total}人</div>` +
+      sorted.map(([type, count], i) => {
+        const cls = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+        const pct = Math.round(count / total * 100);
+        return `<div class="rank-mini-row ${cls}">
+          <div class="rank-mini-num">${medals[i] || (i+1)+'位'}</div>
+          <div class="rank-mini-type" style="flex:1">${escHtml(type)}</div>
+          <div class="rank-mini-score" style="font-size:0.85rem;color:#aaa">${count}人 <span style="color:#555;font-size:0.7rem">${pct}%</span></div>
+        </div>`;
+      }).join('');
   } catch (e) {
     list.innerHTML = '<div class="rank-mini-loading">読み込みに失敗しました</div>';
   }
