@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>あなたのクズ度診断</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: #111;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px 16px 60px;
+    }
+    .card {
+      background: #1a1a1a;
+      border-radius: 24px;
+      padding: 36px 28px;
+      max-width: 500px; width: 100%;
+      box-shadow: 0 0 60px rgba(255,60,60,0.15);
+      border: 1px solid #2a2a2a;
+    }
+    .screen { display: none; }
+    .screen.show { display: block; animation: fadeIn 0.35s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── タイトル ── */
+    .title-emoji-wrap { text-align: center; margin-bottom: 12px; }
+    .title-emoji-wrap .main-emoji { font-size: 80px; display: inline-block; animation: tilt 3s ease-in-out infinite; }
+    @keyframes tilt {
+      0%,100% { transform: rotate(-4deg) scale(1); }
+      50%     { transform: rotate(4deg) scale(1.08); }
+    }
+    h1 { text-align: center; font-size: 1.6rem; font-weight: 900; color: #ff4444; margin-bottom: 6px; letter-spacing: 1px; }
+    .subtitle { text-align: center; color: #999; font-size: 0.85rem; margin-bottom: 10px; line-height: 1.6; }
+    .warning {
+      text-align: center; color: #999; font-size: 0.75rem;
+      margin-bottom: 28px; padding: 10px 14px;
+      border: 1px solid #2a2a2a; border-radius: 10px;
+      line-height: 1.6;
+    }
+
+    /* タイプ一覧 */
+    .type-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
+    .type-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px; border-radius: 10px;
+      background: #222; border: 1px solid #2a2a2a;
+    }
+    .type-pct { font-size: 0.72rem; color: #555; width: 52px; flex-shrink: 0; }
+    .type-name { font-size: 0.85rem; font-weight: 700; flex: 1; }
+    .type-catch { font-size: 0.72rem; color: #888; }
+
+    /* ── プログレス ── */
+    .progress-wrap { margin-bottom: 24px; }
+    .progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .progress-label { font-size: 0.78rem; color: #555; }
+    .nav-btns { display: flex; gap: 8px; }
+    .btn-small { background: none; border: none; font-size: 0.75rem; color: #444; cursor: pointer; font-family: inherit; padding: 2px 6px; }
+    .btn-small:hover { color: #ff4444; }
+    .progress-bar { background: #222; border-radius: 99px; height: 6px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg,#ff6b6b,#ff4444); border-radius: 99px; transition: width 0.5s ease; }
+
+    /* ── 質問 ── */
+    .q-num { font-size: 0.75rem; color: #444; text-align: center; margin-bottom: 6px; letter-spacing: 2px; }
+    .q-emoji { font-size: 44px; text-align: center; margin-bottom: 12px; }
+    .q-text { font-size: 1.05rem; font-weight: 700; color: #eee; line-height: 1.7; text-align: center; margin-bottom: 24px; min-height: 52px; }
+
+    .choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px; }
+    .choice {
+      padding: 14px 18px; border: 1px solid #2a2a2a; border-radius: 12px;
+      cursor: pointer; font-size: 0.93rem; color: #bbb; line-height: 1.5;
+      transition: all 0.18s; text-align: left; background: #222;
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+    .choice:hover { border-color: #ff4444; color: #fff; background: #2a1a1a; }
+    .choice.selected { border-color: #ff4444; background: #2a1212; color: #ff6b6b; font-weight: 700; }
+
+    /* フィードバック */
+    .feedback-box {
+      display: none; margin-top: 16px; padding: 16px 18px; border-radius: 12px;
+      background: #2a1212; border-left: 3px solid #ff4444;
+    }
+    .feedback-box.show { display: block; animation: fadeIn 0.4s ease; }
+    .fb-tag { font-size: 0.72rem; color: #ff4444; font-weight: 700; letter-spacing: 1px; margin-bottom: 5px; }
+    .fb-main { font-size: 0.93rem; color: #ccc; line-height: 1.7; }
+
+    /* ボタン */
+    .btn {
+      width: 100%; padding: 14px; border: none; border-radius: 50px;
+      font-size: 1rem; font-weight: 700; font-family: 'Noto Sans JP', sans-serif;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: #ff4444; color: white; margin-top: 16px; box-shadow: 0 4px 20px rgba(255,68,68,0.3); }
+    .btn-primary:hover { background: #ff2222; box-shadow: 0 6px 24px rgba(255,68,68,0.4); }
+    .btn-primary.hidden { display: none; }
+    .btn-ghost { background: transparent; color: #444; border: 1px solid #2a2a2a; margin-top: 10px; }
+    .btn-ghost:hover { color: #666; border-color: #333; }
+    .btn-share { background: #222; color: #eee; border: 1px solid #ff4444; margin-top: 10px; }
+    .btn-share:hover { background: #2a1a1a; }
+    .btn-rank { background: #222; color: #fdcb6e; border: 1px solid #fdcb6e; margin-top: 10px; }
+    .btn-rank:hover { background: #2a2a1a; }
+
+    /* ── 結果 ── */
+    .result-tag { text-align: center; font-size: 0.75rem; color: #444; letter-spacing: 2px; margin-bottom: 10px; }
+    .result-emoji { font-size: 80px; text-align: center; margin-bottom: 10px; }
+    .result-type { text-align: center; font-size: 1.7rem; font-weight: 900; color: #ff4444; margin-bottom: 4px; }
+    .result-catch { text-align: center; font-size: 0.88rem; color: #999; margin-bottom: 24px; line-height: 1.6; }
+
+    /* クズメーター */
+    .meter-wrap { margin-bottom: 24px; }
+    .meter-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: #444; margin-bottom: 8px; }
+    .meter-bar {
+      height: 24px; border-radius: 99px; background: #222;
+      overflow: hidden; position: relative; margin-bottom: 8px;
+    }
+    .meter-fill {
+      height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, #fdcb6e, #e17055, #d63031, #c0392b);
+      transition: width 1.4s cubic-bezier(.34,1.56,.64,1);
+      position: relative;
+    }
+    .meter-fill::after {
+      content: '';
+      position: absolute; right: 0; top: 0; bottom: 0; width: 4px;
+      background: white; border-radius: 99px; opacity: 0.6;
+    }
+    .meter-score { text-align: center; font-size: 3rem; font-weight: 900; color: #ff4444; margin-top: 8px; }
+    .meter-score span { font-size: 1rem; color: #444; }
+
+    /* セクション */
+    .sections { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+    .section { border-radius: 12px; padding: 16px 18px; }
+    .sec-verdict { background: #2a1a1a; border-left: 3px solid #ff4444; }
+    .sec-evidence { background: #1e1e2a; border-left: 3px solid #74b9ff; }
+    .sec-excuse  { background: #1e2a1e; border-left: 3px solid #55efc4; }
+    .sec-outlook { background: #2a2a1a; border-left: 3px solid #fdcb6e; }
+    .section h3 { font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+    .sec-verdict h3 { color: #ff4444; }
+    .sec-evidence h3 { color: #74b9ff; }
+    .sec-excuse  h3 { color: #55efc4; }
+    .sec-outlook h3 { color: #fdcb6e; }
+    .section p { font-size: 0.9rem; color: #aaa; line-height: 1.8; }
+
+    /* 共有用テキスト */
+    .share-text {
+      background: #222; border: 1px solid #2a2a2a; border-radius: 12px;
+      padding: 14px 18px; margin-bottom: 16px; text-align: center;
+      font-size: 0.88rem; color: #999; line-height: 1.8;
+    }
+    .share-text strong { color: #ff4444; font-size: 1rem; }
+
+    .copy-toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+      background: #333; color: #eee; padding: 10px 20px; border-radius: 99px;
+      font-size: 0.82rem; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+      z-index: 200;
+    }
+    .copy-toast.show { opacity: 1; }
+
+    /* ── トップランキング ── */
+    .top-ranking { margin-top: 8px; margin-bottom: 24px; }
+    .top-ranking h3 { font-size: 0.82rem; color: #fdcb6e; font-weight: 700; margin-bottom: 10px; letter-spacing: 1px; }
+    .rank-mini-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; border-radius: 10px;
+      background: #222; border: 1px solid #2a2a2a; margin-bottom: 6px;
+    }
+    .rank-mini-row.top1 { border-color: #fdcb6e55; }
+    .rank-mini-row.top2 { border-color: #aaaaaa33; }
+    .rank-mini-row.top3 { border-color: #e1705533; }
+    .rank-mini-num { font-size: 0.88rem; width: 22px; text-align: center; flex-shrink: 0; }
+    .rank-mini-score { font-size: 0.95rem; font-weight: 900; color: #ff4444; flex-shrink: 0; width: 44px; text-align: right; }
+    .rank-mini-type { font-size: 0.72rem; color: #777; }
+    .rank-mini-loading { font-size: 0.78rem; color: #555; text-align: center; padding: 12px 0; }
+  </style>
+</head>
+<body>
+<div class="card">
+
+  <!-- ① タイトル -->
+  <div id="screen-title" class="screen show">
+    <div class="title-emoji-wrap">
+      <span class="main-emoji">😈</span>
+    </div>
+    <h1>あなたのクズ度診断</h1>
+    <p class="subtitle">10問で判明します。覚悟して。</p>
+    <div class="warning">
+      ※ これは愛のある診断です。<br>結果に心当たりがありすぎても責任は負いません。
+    </div>
+
+    <div class="type-list">
+      <div class="type-row">
+        <div class="type-pct" style="color:#aaa">0〜15%</div>
+        <div class="type-name" style="color:#aaa">天使のふり上手</div>
+        <div class="type-catch">気づいてないだけ説、濃厚</div>
+      </div>
+      <div class="type-row">
+        <div class="type-pct" style="color:#fdcb6e">16〜35%</div>
+        <div class="type-name" style="color:#fdcb6e">かわいいクズ</div>
+        <div class="type-catch">憎めないが、たしかにクズ</div>
+      </div>
+      <div class="type-row">
+        <div class="type-pct" style="color:#e17055">36〜55%</div>
+        <div class="type-name" style="color:#e17055">クズ標準装備</div>
+        <div class="type-catch">社会に溶け込む量産型</div>
+      </div>
+      <div class="type-row">
+        <div class="type-pct" style="color:#ff6b6b">56〜75%</div>
+        <div class="type-name" style="color:#ff6b6b">こじらせクズ</div>
+        <div class="type-catch">自覚があるのにやめられない</div>
+      </div>
+      <div class="type-row">
+        <div class="type-pct" style="color:#ff4444">76〜90%</div>
+        <div class="type-name" style="color:#ff4444">クズの申し子</div>
+        <div class="type-catch">クズへのセンスが光っている</div>
+      </div>
+      <div class="type-row">
+        <div class="type-pct" style="color:#d63031">91〜100%</div>
+        <div class="type-name" style="color:#d63031">クズ界の重鎮</div>
+        <div class="type-catch">もはや文化。あなたを中心にクズが回っている</div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="startGame()">診断する（後悔しても知らない）</button>
+
+    <hr style="border:none; border-top:1px solid #2a2a2a; margin: 28px 0 20px;">
+
+    <div class="top-ranking">
+      <h3>🏆 クズ度ランキング TOP5</h3>
+      <div id="top-rank-list"><div class="rank-mini-loading">読み込み中…</div></div>
+    </div>
+  </div>
+
+  <!-- ② 質問 -->
+  <div id="screen-game" class="screen">
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span class="progress-label" id="q-label">1 / 10</span>
+        <div class="nav-btns">
+          <button class="btn-small" id="btn-back" onclick="goBack()" style="visibility:hidden">← 戻る</button>
+          <button class="btn-small" onclick="goTop()">やめる</button>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="q-emoji" id="q-emoji"></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="choices" id="choices"></div>
+    <div class="feedback-box" id="feedback-box">
+      <div class="fb-tag" id="fb-tag"></div>
+      <div class="fb-main" id="fb-main"></div>
+    </div>
+    <button class="btn btn-primary hidden" id="btn-next" onclick="nextQuestion()">つぎへ →</button>
+  </div>
+
+  <!-- ③ 結果 -->
+  <div id="screen-result" class="screen">
+    <div class="result-tag">診断結果</div>
+    <div class="result-emoji" id="res-emoji"></div>
+    <div class="result-type" id="res-type"></div>
+    <div class="result-catch" id="res-catch"></div>
+
+    <div class="meter-wrap">
+      <div class="meter-label"><span>クズ度</span><span id="meter-pct-label">0%</span></div>
+      <div class="meter-bar"><div class="meter-fill" id="meter-fill" style="width:0%"></div></div>
+      <div class="meter-score" id="meter-score">0<span>%</span></div>
+    </div>
+
+    <div class="sections">
+      <div class="section sec-verdict">
+        <h3>⚖️ 判決</h3><p id="res-verdict"></p>
+      </div>
+      <div class="section sec-evidence">
+        <h3>🔍 クズの証拠</h3><p id="res-evidence"></p>
+      </div>
+      <div class="section sec-excuse">
+        <h3>🌿 一応フォロー</h3><p id="res-excuse"></p>
+      </div>
+      <div class="section sec-outlook">
+        <h3>🔮 今後の見通し</h3><p id="res-outlook"></p>
+      </div>
+    </div>
+
+    <div class="share-text" id="share-text"></div>
+
+    <button class="btn btn-share" onclick="shareResult()">📤 結果をシェアする</button>
+    <button class="btn btn-primary" onclick="restart()">もう一度やる（懲りない）🔄</button>
+    <button class="btn btn-ghost" onclick="goTop()">トップへ戻る</button>
+  </div>
+
+</div>
+
+<div class="copy-toast" id="copy-toast">コピーしました！</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAwEigI6zxQYqgpMnyuVoERnN-Jv46k0F0",
+  authDomain: "kuzu-cf8b4.firebaseapp.com",
+  projectId: "kuzu-cf8b4",
+  storageBucket: "kuzu-cf8b4.firebasestorage.app",
+  messagingSenderId: "529263995593",
+  appId: "1:529263995593:web:1a047ac250f3d020c77b18"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const Q = [
+  {
+    emoji: "📅",
+    text: "友達と約束した当日、めちゃくちゃ眠い。どうする？",
+    choices: [
+      { label: "眠くても行く。約束は約束",                         score: 5,  fb: { tag: "偉い", main: "えらい。でもこの選択肢を選んだあなたが心配です。無理しないで。" } },
+      { label: "「ちょっと遅れる」と言って二度寝してから行く",   score: 40, fb: { tag: "小クズ", main: "「ちょっと」が何時間かは聞きたくないです。" } },
+      { label: "「体調が悪くて…」とLINEして二度寝する",         score: 70, fb: { tag: "嘘クズ", main: "眠いを体調不良に変換する技術、何度も磨いてきましたね。" } },
+      { label: "連絡は入れるが、起きたら昼だった",               score: 85, fb: { tag: "無計画クズ", main: "連絡は入れる、でも起きたら昼。連絡の意味とは。" } },
+      { label: "そのまま寝て、起きてから「ごめん寝てた」",       score: 100, fb: { tag: "重鎮", main: "「寝てた」で済む関係と思っている時点で、相手の心は半分終わっています。" } }
+    ]
+  },
+  {
+    emoji: "💸",
+    text: "500円借りたまま3ヶ月経った。相手は何も言ってこない。",
+    choices: [
+      { label: "自分から「そういえば返してなかった！」と渡す",   score: 30, fb: { tag: "誠実寄り", main: "ちゃんとしてる。でもなぜ3ヶ月かかった。" } },
+      { label: "次会ったとき渡そうと思っている（まだ渡してない）", score: 60, fb: { tag: "先送りクズ", main: "「思っている」と「している」は全然違います。" } },
+      { label: "言ってこないならまあいいか",                     score: 85, fb: { tag: "図々しいクズ", main: "「言ってこない＝許可」という解釈、法廷では通りません。" } },
+      { label: "正直もう忘れてた",                               score: 95, fb: { tag: "記憶クズ", main: "500円は消えましたが、相手の心の帳簿には残っています。" } },
+      { label: "相手も忘れてるでしょ",                           score: 100, fb: { tag: "都合よし", main: "忘れてるのはあなただけです。99%の確率で。" } }
+    ]
+  },
+  {
+    emoji: "📱",
+    text: "既読をつけたLINE、返すのがめんどくさい。どうする？",
+    choices: [
+      { label: "めんどくさくても返す",                               score: 5,  fb: { tag: "えらい", main: "大人。でもめんどくさいと思っている時点で少しクズです。" } },
+      { label: "テンションが上がったタイミングで返す",             score: 35, fb: { tag: "気分屋", main: "相手はあなたのテンションを待っているわけではありません。" } },
+      { label: "返す内容を考えすぎて結局翌日になる",               score: 55, fb: { tag: "言い訳クズ", main: "考えすぎとサボりは見分けがつきません。自分でもわかってるでしょう。" } },
+      { label: "重要じゃないと判断したら返さないこともある",       score: 80, fb: { tag: "選別クズ", main: "「重要かどうか」はあなたが決めることじゃない場合もあります。" } },
+      { label: "気づいたら数日経っていて、もはや返しにくい",       score: 95, fb: { tag: "時効狙い", main: "時間が経てば経つほど返しにくくなるのを知っていて放置してますよね。" } }
+    ]
+  },
+  {
+    emoji: "🎂",
+    text: "仲のいい友達の誕生日、完全に忘れてた。気づいたのは3日後のSNS投稿。",
+    choices: [
+      { label: "すぐ連絡して謝る",                                 score: 10, fb: { tag: "誠実", main: "3日後でも動けるのは偉い。ただ忘れたのは事実です。" } },
+      { label: "「遅くなったけどおめでとう！」と明るく送る",     score: 40, fb: { tag: "都合よし", main: "明るくごまかす技術、長年磨いてきましたね。" } },
+      { label: "プレゼントを買って知らんぷりで渡す",             score: 65, fb: { tag: "もみ消しクズ", main: "物でごまかす。謝罪なしのプレゼントは意味が半減します。" } },
+      { label: "来年ちゃんとやればいいか",                         score: 85, fb: { tag: "先送りクズ", main: "来年のことを今決める前に、今年のことを今やってください。" } },
+      { label: "まあ向こうも忘れてることあるし",                   score: 100, fb: { tag: "相殺クズ", main: "「お互い様」は謝罪の代わりにはなりません。永遠に。" } }
+    ]
+  },
+  {
+    emoji: "💔",
+    text: "付き合って2ヶ月、もう気持ちが冷めた。どうする？",
+    choices: [
+      { label: "正直に話して、ちゃんと別れる",                     score: 5,  fb: { tag: "大人", main: "正しい。でもこれができる人間がこんなにも少ない現実があります。" } },
+      { label: "「最近忙しくて…」と少しずつ距離を置く",         score: 55, fb: { tag: "じわじわクズ", main: "「忙しい」は便利な言葉ですね。相手はその意味を何度も考えて眠れない夜を過ごします。" } },
+      { label: "新しい出会いを探しながら保険としてキープ",       score: 80, fb: { tag: "保険クズ", main: "「保険」という言葉を使った瞬間に、あなたのクズ判定は確定しました。" } },
+      { label: "LINEで「ごめん、無理になった」と送る",           score: 88, fb: { tag: "デジタルクズ", main: "LINEで。2ヶ月付き合った人に。まあ連絡はしてるのでギリギリ落第点ではないです。" } },
+      { label: "連絡を徐々に減らして自然消滅を狙う",             score: 100, fb: { tag: "消滅系重鎮", main: "自然消滅。相手はその「自然」の意味を何ヶ月も考え続けます。それを知ってやってますか。" } }
+    ]
+  },
+  {
+    emoji: "🤫",
+    text: "親友から「絶対に誰にも言わないで」と秘密を打ち明けられた。かなりおもしろい話だった。",
+    choices: [
+      { label: "絶対に言わない",                                   score: 25, fb: { tag: "金庫（たぶん）", main: "「絶対」と言い切れるの、すごい。本当に？" } },
+      { label: "めちゃくちゃ話したいのをずっと我慢している",     score: 50, fb: { tag: "葛藤中", main: "我慢してるのは偉い。でもこの葛藤が続く限り危険です。" } },
+      { label: "パートナーにだけ話す（口が固いから大丈夫）",     score: 70, fb: { tag: "例外クズ", main: "「この人はいい」という例外、作った瞬間に秘密は漏れています。" } },
+      { label: "「実はさ〜」と言いかけて止めたことがある",       score: 85, fb: { tag: "寸止めクズ", main: "言いかけてますよ。止めたのは偶然か意思か、どちらですか。" } },
+      { label: "もうすでに1人に話した",                           score: 100, fb: { tag: "即漏洩", main: "おもしろかったんでしょうね。でもその「1人」もまた1人に話します。" } }
+    ]
+  },
+  {
+    emoji: "😤",
+    text: "仕事（学校）でミスをした。上司（先生）に怒られた。",
+    choices: [
+      { label: "素直に謝って次に活かす",                           score: 25, fb: { tag: "大人（表面上は）", main: "正しい対応です。でも内心はどうでしたか。" } },
+      { label: "謝りながら内心「でも〇〇のせいでもある」と思う", score: 55, fb: { tag: "心の中でクズ", main: "心の中での言い訳、顔に出てます。たぶん。" } },
+      { label: "その場では謝るが、後で愚痴る",                   score: 75, fb: { tag: "陰クズ", main: "後で愚痴る先の人も、あなたの愚痴を別の誰かに話します。" } },
+      { label: "「でも私だけのミスじゃないですよね」と言う",     score: 90, fb: { tag: "戦うクズ", main: "言えちゃうの、ある意味すごい。その場の空気を想像すると胃が痛い。" } },
+      { label: "原因を他の人に自然に見えるよう誘導したことがある", score: 100, fb: { tag: "工作員クズ", main: "「自然に見えるよう」という計画性、クズ界トップレベルの技術です。" } }
+    ]
+  },
+  {
+    emoji: "🍽️",
+    text: "グループで食事。一番高い料理を頼んだのは自分だけど、「均等割りで」と誰かが言った。",
+    choices: [
+      { label: "「自分だけ高いもの頼んだので多く出します」と言う", score: 20, fb: { tag: "完璧（珍しい）", main: "これができる人間、本当に好きです。なぜこの診断を受けてるんですか。" } },
+      { label: "少し多めに出す",                                   score: 40, fb: { tag: "良識あり", main: "まあ良心がある。でも「少し」って何円ですか。" } },
+      { label: "均等割りに内心ほくそ笑む",                       score: 70, fb: { tag: "ラッキー系クズ", main: "ほくそ笑んでますね。その笑み、顔に出てますよ。" } },
+      { label: "何も言わず均等割りで払う",                       score: 85, fb: { tag: "沈黙クズ", main: "言わないことで得をしているとき、それはクズです。" } },
+      { label: "次回も高いものを狙って頼もうと思う",             score: 100, fb: { tag: "計画クズ", main: "次回も。計画的。もはや犯行です。" } }
+    ]
+  },
+  {
+    emoji: "👀",
+    text: "仲のいいグループの中で、1人だけ自分が苦手な人がいる。その人の悪口を別の友達から振られた。",
+    choices: [
+      { label: "同調しない。「そうかな？」と返す",               score: 20, fb: { tag: "大人（珍しい）", main: "立派です。でもこれができる人間がいかに少ないか。あなたは希少種です。" } },
+      { label: "「まあね〜」と曖昧に流す",                       score: 50, fb: { tag: "日和クズ", main: "同調はしてないが否定もしない。安全地帯にいますね。" } },
+      { label: "内心めちゃくちゃ同意しながら「難しいよね」と言う", score: 70, fb: { tag: "隠れクズ", main: "「難しいよね」という言葉でいくつの本音を隠してきましたか。" } },
+      { label: "少し乗っかって一緒に話す",                       score: 88, fb: { tag: "便乗クズ", main: "乗っかった。その瞬間にあなたも共犯者になりました。" } },
+      { label: "実はこっちから振ることもある",                   score: 100, fb: { tag: "首謀者クズ", main: "振る側。主犯です。おつかれさまでした。" } }
+    ]
+  },
+  {
+    emoji: "🪞",
+    text: "最後に。あなたがこの診断を受けようと思ったのはなぜですか？",
+    choices: [
+      { label: "自分を客観的に見つめ直したかった",               score: 35, fb: { tag: "自己成長系（たぶん）", main: "この診断を選んだ時点でうっすら自覚があるはずです。" } },
+      { label: "暇だったから",                                   score: 50, fb: { tag: "暇人", main: "暇なのにこれを選ぶセンス、ある意味才能です。" } },
+      { label: "友達に送りつけようと思って",                     score: 65, fb: { tag: "他人に使うクズ", main: "友達に送りつける前に自分が受ける。それがすでにクズのやることです。" } },
+      { label: "自分のクズさを確認したかった",                   score: 85, fb: { tag: "自覚済みクズ", main: "確認。すでに知ってたんですね。診断より先に人に謝ってください。" } },
+      { label: "クズ度が高く出るといいなと思った",               score: 100, fb: { tag: "クズ志望", main: "目指してたんですか。才能ではなく意志。それはそれで怖い。" } }
+    ]
+  }
+];
+
+const TYPES = [
+  {
+    range: [0, 15], emoji: "😇", name: "天使のふり上手", catch: "クズじゃないんじゃなくて、気づいてないだけ説、濃厚。",
+    verdict: "診断結果はクズ度ほぼゼロ。おめでとうございます…と言いたいところですが、本当にクズじゃない人間がこの診断を楽しめるでしょうか？あなたの「天使っぷり」が本物なのか、無自覚なのか、それが問題です。",
+    evidence: "「やましいことはない」という回答が多すぎる。疑わしい。綺麗な人間というより、クズな自分を認識できていない可能性が高い。か、本当に天使。どちらにせよ、周囲への影響は少ない。",
+    excuse: "いや、本当にいい人なのかもしれません。世の中にはそういう人も存在するそうです。あなたがそうなら、大切にされてください。",
+    outlook: "このまま行けばモテるか、ナメられるかの二択。自分のクズさに気づいた瞬間から本番が始まります。その日を楽しみにしています。",
+    share: "私のクズ度は {score}%「天使のふり上手」でした\nクズじゃないんじゃなくて、気づいてないだけ説、濃厚。"
+  },
+  {
+    range: [16, 35], emoji: "😈", name: "かわいいクズ", catch: "憎めないが、たしかにクズ。",
+    verdict: "あなたのクズさには愛嬌がある。本格的に人を傷つける悪意はないが、自分本位な行動がじわじわと周囲に小さなダメージを与えている。本人に悪気がないのが、むしろたちが悪い。",
+    evidence: "ドタキャンや既読放置が「たまにある」程度で、自覚もある。でもその「たまに」が積み重なると、気づいたら「あいつちょっとな…」と思われています。",
+    excuse: "でもまあ、人間こんなもんです。全員が完璧だったら世界はもっとつまらない。あなたのクズさは社会の潤滑油として機能しているとも言えます。言えません。",
+    outlook: "このクズさは許されやすいが、同じ相手に繰り返すと限界が来ます。「かわいいクズ」の賞味期限は意外と短い。",
+    share: "私のクズ度は {score}%「かわいいクズ」でした\n憎めないが、たしかにクズ。"
+  },
+  {
+    range: [36, 55], emoji: "🗑️", name: "クズ標準装備", catch: "日本人の過半数がこれ。あなたも例外じゃなかった。",
+    verdict: "あなたは日本中にいる「普通にいるクズ」の代表格です。特別悪いわけでも特別いいわけでもない。周囲にも同じくらいのクズが散在しているため、誰も気づいていないし、あなたも気づいていない。それが怖い。",
+    evidence: "言い訳する。催促されたら返す。気分でドタキャンする。全部「まあいいか」の積み重ねで生きてきた。クズという自覚があるのに、なぜか直らない。なぜかはわかっています。直す気がないからです。",
+    excuse: "でも、ここまで生きてこられたということは、それなりに人間関係を維持できているということ。クズなりの処世術があるのでしょう。悪くない。",
+    outlook: "このまま行くと「なんか微妙に信用できない人」として中年を迎えます。一個だけでいいので、クズ行動を減らしてみてください。劇的に変わります。",
+    share: "私のクズ度は {score}%「クズ標準装備」でした\n日本人の過半数がこれ。あなたも例外じゃなかった。"
+  },
+  {
+    range: [56, 75], emoji: "💀", name: "こじらせクズ", catch: "自覚があるのにやめられない本物。",
+    verdict: "あなたは自分がクズだと知っている。知っていてもやめられない。これがこじらせクズの条件です。知らずにやってる人より、知ってやってる人の方が、ある意味で誠実と言えなくもないが、言えない。",
+    evidence: "催促されて返す金、LINEの選別放置、言い訳の反射、誰かのせいにする発想。全部揃っています。才能と呼んでいいレベルです。",
+    excuse: "こじらせクズには人間らしさがある。完璧な人間は信用できないとも言います。あなたのクズさは、弱さの正直な表れかもしれません。",
+    outlook: "このままだと、大切な人を一人ずつ静かに失っていきます。まだ遅くないです。一番傷つけた人に、一度だけ連絡してみてください。",
+    share: "私のクズ度は {score}%「こじらせクズ」でした\n自覚があるのにやめられない本物。"
+  },
+  {
+    range: [76, 90], emoji: "🔥", name: "クズの申し子", catch: "生まれながらにしてクズ。才能ではなく、宿命。",
+    verdict: "あなたのクズさには一貫性があり、再現性があり、そして独自のスタイルがある。これはもう個性です。社会的には問題ありますが、一つの才能として評価せざるを得ない。",
+    evidence: "連絡を絶つ、記憶から消える、誰かのせいにする、秘密をネタにする。全方位にわたってクズが分散しており、特定の弱点がない。完成度が高い。",
+    excuse: "でも、こんな診断を最後まで受けているということは、どこかで変わりたいと思っている証拠かもしれません。クズにも良心はある。たぶん。",
+    outlook: "あなたのクズさで傷ついた人が、今もどこかにいます。その一人でいいので、思い出してみてください。",
+    share: "私のクズ度は {score}%「クズの申し子」でした\n生まれながらにしてクズ。才能ではなく、宿命。"
+  },
+  {
+    range: [91, 100], emoji: "👑", name: "クズ界の重鎮", catch: "もはや文化。あなたを中心にクズが回っている。",
+    verdict: "おめでとうございます。あなたはクズの頂点に立ちました。ここまで来ると批判する気も起きません。一つの完成された生き方として、敬意すら感じます。間違えました。感じません。",
+    evidence: "全項目において最高水準のクズポイントを記録。自然消滅、金は흐지부지、秘密はネタ、ミスは他人のせい、SNSで刺す。フルコンプリートです。",
+    excuse: "あなたが今まで生きてこられたのは、それでも傍にいてくれた人がいるから。その人たちへの感謝だけは忘れないでください。本当に。",
+    outlook: "もうアドバイスする立場にありません。ただ、人間いつか孤独になる瞬間が来ます。そのとき思い出してください、この診断のことを。",
+    share: "私のクズ度は {score}%「クズ界の重鎮」でした\nもはや文化。あなたを中心にクズが回っている。"
+  }
+];
+
+let current = 0, totalScore = 0, history = [], selectedIndex = null;
+let lastScore = 0, lastType = null;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+}
+window.startGame = function() {
+  current = 0; totalScore = 0; history = [];
+  showScreen('screen-game'); loadQuestion();
+};
+function loadQuestion() {
+  selectedIndex = null;
+  const q = Q[current];
+  const pct = Math.round((current / Q.length) * 100);
+  document.getElementById('q-label').textContent = `${current + 1} / ${Q.length}`;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-emoji').textContent = q.emoji;
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('btn-back').style.visibility = current === 0 ? 'hidden' : 'visible';
+  const container = document.getElementById('choices');
+  container.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice';
+    btn.textContent = c.label;
+    btn.onclick = () => selectChoice(i);
+    container.appendChild(btn);
+  });
+  document.getElementById('feedback-box').classList.remove('show');
+  document.getElementById('btn-next').classList.add('hidden');
+}
+function selectChoice(i) {
+  if (selectedIndex !== null) return;
+  selectedIndex = i;
+  history.push({ index: current, totalScore });
+  const c = Q[current].choices[i];
+  totalScore += c.score;
+  document.querySelectorAll('.choice')[i].classList.add('selected');
+  document.getElementById('fb-tag').textContent = c.fb.tag;
+  document.getElementById('fb-main').textContent = c.fb.main;
+  document.getElementById('feedback-box').classList.add('show');
+  document.getElementById('btn-next').classList.remove('hidden');
+}
+window.nextQuestion = function() {
+  current++;
+  if (current >= Q.length) showResult(); else loadQuestion();
+};
+window.goBack = function() {
+  if (!history.length) return;
+  const prev = history.pop();
+  current = prev.index; totalScore = prev.totalScore;
+  loadQuestion();
+};
+window.goTop = function() { showScreen('screen-title'); loadTopRanking(); };
+window.restart = function() { window.startGame(); };
+
+function showResult() {
+  const score = Math.round(totalScore / Q.length);
+  const type = TYPES.find(t => score >= t.range[0] && score <= t.range[1]) || TYPES[2];
+  lastScore = score; lastType = type;
+
+  document.getElementById('res-emoji').textContent = type.emoji;
+  document.getElementById('res-type').textContent = type.name;
+  document.getElementById('res-catch').textContent = type.catch;
+  document.getElementById('res-verdict').textContent = type.verdict;
+  document.getElementById('res-evidence').textContent = type.evidence;
+  document.getElementById('res-excuse').textContent = type.excuse;
+  document.getElementById('res-outlook').textContent = type.outlook;
+  document.getElementById('share-text').innerHTML = type.share.replace('{score}', score).replace(/\n/g, '<br>');
+  document.getElementById('meter-pct-label').textContent = score + '%';
+  document.getElementById('meter-score').innerHTML = `${score}<span>%</span>`;
+
+  showScreen('screen-result');
+  setTimeout(() => {
+    document.getElementById('meter-fill').style.width = score + '%';
+  }, 100);
+  autoSaveScore();
+}
+
+/* ── シェア ── */
+window.shareResult = function() {
+  const text = lastType.share.replace('{score}', lastScore)
+    + '\n\nあなたも試してみて👇\nhttps://kuzu-cf8b4.web.app/';
+  if (navigator.share) {
+    navigator.share({ text }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text).then(() => showToast('コピーしました！'));
+  }
+};
+
+function showToast(msg) {
+  const t = document.getElementById('copy-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+/* ── 匿名で自動保存 ── */
+async function autoSaveScore() {
+  try {
+    await addDoc(collection(db, 'scores'), {
+      score: lastScore,
+      type: lastType.name,
+      createdAt: serverTimestamp()
+    });
+  } catch (e) { /* サイレント失敗 */ }
+}
+
+/* ── トップ画面のランキング更新 ── */
+async function loadTopRanking() {
+  const list = document.getElementById('top-rank-list');
+  try {
+    const q = query(collection(db, 'scores'), orderBy('score', 'desc'), limit(5));
+    const snap = await getDocs(q);
+    if (snap.empty) {
+      list.innerHTML = '<div class="rank-mini-loading">まだ記録がありません。最初のクズになろう。</div>';
+      return;
+    }
+    const medals = ['🥇', '🥈', '🥉', '4', '5'];
+    list.innerHTML = snap.docs.map((doc, i) => {
+      const d = doc.data();
+      const cls = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+      return `<div class="rank-mini-row ${cls}">
+        <div class="rank-mini-num">${medals[i]}</div>
+        <div class="rank-mini-type" style="flex:1">${escHtml(d.type)}</div>
+        <div class="rank-mini-score">${d.score}%</div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    list.innerHTML = '<div class="rank-mini-loading">読み込みに失敗しました</div>';
+  }
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+loadTopRanking();
+</script>
+<footer style="position:fixed; bottom:0; left:0; width:100%; text-align:center; padding: 10px 0 12px; font-size: 0.72rem; color: #666; background: #111; border-top: 1px solid #2a2a2a;">Created by ロイド on 2026/9/9</footer>
+</body>
+</html>
