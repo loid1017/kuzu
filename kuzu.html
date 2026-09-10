@@ -266,7 +266,7 @@
     <hr style="border:none; border-top:1px solid #2a2a2a; margin: 28px 0 20px;">
 
     <div class="top-ranking">
-      <h3>🏆 クズ度ランキング TOP5</h3>
+      <h3>🏆 クズ度ランキング</h3>
       <div id="top-rank-list"><div class="rank-mini-loading">読み込み中…</div></div>
     </div>
   </div>
@@ -621,7 +621,7 @@ async function loadTopRanking() {
     });
     const total = snap.size;
     // 多い順にソート
-    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
     const medals = ['🥇', '🥈', '🥉', '4位', '5位', '6位'];
     list.innerHTML = `<div style="font-size:0.72rem;color:#555;margin-bottom:8px;">診断総数 ${total}人</div>` +
       sorted.map(([type, count], i) => {
